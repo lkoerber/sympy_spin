@@ -23,6 +23,9 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
-    install_requires=["sympy"],
+    install_requires=[
+        "sympy == 1.13.3",
+        "matplotlib == 3.9.0",
+        ],
     python_requires=">=3.10",
 )
