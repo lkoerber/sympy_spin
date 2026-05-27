@@ -2,8 +2,8 @@ from enum import Enum
 
 from sympy import Symbol
 
-hbar = Symbol("hbar")
-S = Symbol("S")
+hbar = Symbol("hbar", real=True)
+S = Symbol("S", real=True)
 
 COMPONENT_NUMBERS = {
     "x": 1,

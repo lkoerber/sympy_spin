@@ -13,8 +13,8 @@ class BosonOperator(Operator):
         self.is_creator = is_creator
 
     def commutator_with(self, other):
-        if self.species != other.species:
-            return Integer(0)
+        #if self.species != other.species:
+        #    return Integer(0)
 
         if self.is_creator == other.is_creator:
             return Integer(0)

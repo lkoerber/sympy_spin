@@ -4,7 +4,11 @@ from sympy.physics.quantum.commutator import Commutator, Operator
 from sympy import Number, Function, Pow, Mul, Symbol
 
 from sympy_spin.correlation_operators import CorrelationOperator
+from sympy_spin.neel import NeelOperator
+
 from sympy_spin.spin import SpinOperator
+
+from sympy_spin.brackets import SymmetricBracket
 
 
 def expand_powers(args):
@@ -82,6 +86,30 @@ def apply_commutators(expr):
         return A.commutator_with(B)
 
 
+def has_symmetric_bracket_with(a, b):
+    if not callable(getattr(a, "symmetric_bracket_with", None)):
+        return False
+
+    if not callable(getattr(b, "symmetric_bracket_with", None)):
+        return False
+
+    return a.has_symmetric_bracket_with(b)
+
+
+def apply_symmetric_brackets(expr):
+    if isinstance(expr, (Number, Symbol, Operator, Function)):
+        return expr
+
+    if not (func := expr.func) is SymmetricBracket:
+        return expr.func(*(apply_symmetric_brackets(node) for node in expr.args))
+
+    else:
+        A, B = expr.args
+        if not has_symmetric_bracket_with(A, B):
+            return expr
+        return A.symmetric_bracket_with(B)
+
+
 def subs_correlators(expr):
     if isinstance(expr, (Number, Symbol, Operator, Function)) and not isinstance(expr, CorrelationOperator):
         return expr
@@ -91,6 +119,28 @@ def subs_correlators(expr):
 
     else:
         return expr.func(*(subs_correlators(node) for node in expr.args))
+
+
+def bosonize_spins_to_HP(expr, linear=False):
+    if isinstance(expr, (Number, Symbol, Operator, Function)) and not isinstance(expr, SpinOperator):
+        return expr
+
+    if isinstance(S := expr, SpinOperator):
+        return S.bosonize_to_HP(linear)
+
+    else:
+        return expr.func(*(bosonize_spins_to_HP(node,linear) for node in expr.args))
+
+
+def subs_neel(expr):
+    if isinstance(expr, (Number, Symbol, Operator, Function)) and not isinstance(expr, NeelOperator):
+        return expr
+
+    if isinstance(N := expr, NeelOperator):
+        return N.subs_spins()
+
+    else:
+        return expr.func(*(subs_neel(node) for node in expr.args))
 
 
 def order_correlators(expr):
